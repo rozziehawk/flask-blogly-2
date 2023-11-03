@@ -86,15 +86,20 @@ def edit_new_post(userid):
 
 @app.route("/add_post/<userid>", methods=["POST"])
 def add_post(userid):
+    """user was on add post screen, pressed cancel or save"""
     user = User.query.get(userid)
     post = Post()
-    post.title = request.form['title']
-    post.content = request.form['content']
-    post.userid = userid
 
-    db.session.add(post)
-    db.session.commit() 
-    return render_template('show_post.html', post=post)
+    which_button = request.form["add_cancel"]
+    if (which_button == 'Add'):
+        post.title = request.form['title']
+        post.content = request.form['content']
+        post.userid = userid
+        db.session.add(post)
+        db.session.commit() 
+        return render_template('show_post.html', post=post)
+    else: #cancel
+        return redirect(f"/users/{userid}", code=302)
 
 
 @app.route("/posts/<postid>")
@@ -121,6 +126,7 @@ def post_action(postid):
 
 @app.route("/save_post/<postid>", methods=["POST"])
 def post_save_cancel(postid):
+    """ user on the edit post screen pressed either save or cancel button"""
     post = Post.query.get(postid)
     userid = post.userid
     which_button = request.form["add_cancel"]
